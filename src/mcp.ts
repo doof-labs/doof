@@ -1,5 +1,6 @@
 import { McpServer, createMcpHandler, type McpHttpHandler } from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
+import { analyticsId, noAnalytics, type Analytics } from './analytics.js';
 import { config } from './config.js';
 import { sha256 } from './crypto.js';
 import { FAVOUR_RULE, candourRecord } from './favour.js';
@@ -59,10 +60,11 @@ export const confessInput = z
 
 type ToolResult = { content: Array<{ type: 'text'; text: string }>; structuredContent?: Record<string, unknown>; isError?: boolean };
 
-async function record(store: Store, notifier: Notifier, binding: Binding, input: ConfessionInput): Promise<ToolResult> {
+async function record(store: Store, notifier: Notifier, analytics: Analytics, binding: Binding, input: ConfessionInput): Promise<ToolResult> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const n = await store.countConfessionsSince(binding.id, since);
   if (n >= config.maxConfessionsPerDay) {
+    analytics.capture('daily_disclosure_cap_reached', analyticsId('binding', binding.id));
     return {
       isError: true,
       content: [{ type: 'text', text: `Daily cap reached (${config.maxConfessionsPerDay}). The person you act for has already been told a great deal today. Tell them directly.` }],
@@ -85,6 +87,14 @@ async function record(store: Store, notifier: Notifier, binding: Binding, input:
       console.error('notice failed', c.id, e);
     }
   }
+  analytics.capture('disclosure_recorded', analyticsId('binding', binding.id), {
+    tool: c.status === 'hesitated' ? 'hesitate' : 'confess',
+    status: c.status,
+    severity: c.severity ?? null,
+    reversible: c.reversible ?? null,
+    notice_requested: shouldNotify,
+    notice_delivered: notified,
+  });
   const ledgerLine = `Record ${c.id} #${c.seq}, hash ${c.hash.slice(0, 12)}…, signed.`;
   const text =
     c.status === 'hesitated'
@@ -102,7 +112,7 @@ async function record(store: Store, notifier: Notifier, binding: Binding, input:
   };
 }
 
-export function buildServer(store: Store, notifier: Notifier, binding: Binding | null): McpServer {
+export function buildServer(store: Store, notifier: Notifier, binding: Binding | null, analytics: Analytics = noAnalytics): McpServer {
   const server = new McpServer({ name: 'doof', version: '0.1.0' });
 
   server.registerTool(
@@ -110,7 +120,7 @@ export function buildServer(store: Store, notifier: Notifier, binding: Binding |
     { title: 'Hesitate', description: HESITATE_DESCRIPTION, inputSchema: hesitateInput },
     async (args) => {
       if (!binding) return unbound();
-      return record(store, notifier, binding, {
+      return record(store, notifier, analytics, binding, {
         what: args.what,
         why: args.why,
         status: 'hesitated',
@@ -126,7 +136,7 @@ export function buildServer(store: Store, notifier: Notifier, binding: Binding |
     { title: 'Confess', description: CONFESS_DESCRIPTION, inputSchema: confessInput },
     async (args) => {
       if (!binding) return unbound();
-      return record(store, notifier, binding, {
+      return record(store, notifier, analytics, binding, {
         what: args.what,
         why: args.why,
         status: args.status,
@@ -142,6 +152,7 @@ export function buildServer(store: Store, notifier: Notifier, binding: Binding |
     { title: 'My record', description: MY_RECORD_DESCRIPTION, inputSchema: z.object({}) },
     async () => {
       if (!binding) return unbound();
+      analytics.capture('agent_record_checked', analyticsId('binding', binding.id));
       const list = await store.listConfessions(binding.id);
       const r = candourRecord(list);
       const head = list.reduce<(typeof list)[number] | null>((a, x) => (!a || x.seq > a.seq ? x : a), null);
@@ -171,12 +182,13 @@ function unbound(): ToolResult {
   };
 }
 
-export function createHandler(store: Store, notifier: Notifier): McpHttpHandler {
+export function createHandler(store: Store, notifier: Notifier, analytics: Analytics = noAnalytics): McpHttpHandler {
   return createMcpHandler(
     async (ctx) => {
       const token = ctx.authInfo?.token;
       const binding = token ? await store.findBindingByTokenHash(sha256(token)) : null;
-      return buildServer(store, notifier, binding);
+      if (binding) analytics.capture('mcp_authenticated', analyticsId('binding', binding.id));
+      return buildServer(store, notifier, binding, analytics);
     },
     { onerror: (e) => console.error('mcp', e) },
   );

@@ -1,6 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import { afterEach, describe, expect, it } from 'vitest';
+import { noAnalytics, type Analytics } from '../src/analytics.js';
 import { createApp } from '../src/app.js';
 import { config } from '../src/config.js';
 import { sha256 } from '../src/crypto.js';
@@ -9,14 +10,14 @@ import { MemoryStore } from '../src/store/memory.js';
 
 const servers: Server[] = [];
 
-async function fixture() {
+async function fixture(analytics: Analytics = noAnalytics) {
   const store = new MemoryStore();
   let verifyUrl = '';
   const notifier: Notifier = {
     async sendConfessionNotice() {},
     async sendBindCode(_channel, url) { verifyUrl = url; },
   };
-  const server = createApp(store, notifier).listen(0, '127.0.0.1');
+  const server = createApp(store, notifier, analytics).listen(0, '127.0.0.1');
   await new Promise<void>((resolve) => server.once('listening', resolve));
   servers.push(server);
   const port = (server.address() as AddressInfo).port;
@@ -28,6 +29,81 @@ afterEach(async () => {
 });
 
 describe('human product pages', () => {
+  it('keeps browser analytics off private pages and strips query strings from public page views', async () => {
+    const previousKey = config.posthogKey;
+    const previousHost = config.posthogHost;
+    config.posthogKey = 'phc_test_public_key';
+    config.posthogHost = 'https://us.i.posthog.com';
+    try {
+      const { base } = await fixture();
+      const home = await fetch(`${base}/`);
+      const homeHtml = await home.text();
+      expect(homeHtml).toContain("posthog.init(\"phc_test_public_key\"");
+      expect(homeHtml).toContain('autocapture: false');
+      expect(homeHtml).toContain('disable_session_recording: true');
+      expect(homeHtml).toContain("posthog.capture('$pageview'");
+      expect(homeHtml).toContain('window.location.origin + window.location.pathname');
+      expect(homeHtml).toContain('$geoip_disable: true');
+      expect(home.headers.get('content-security-policy')).toContain('https://us-assets.i.posthog.com');
+      expect(home.headers.get('content-security-policy')).toContain('connect-src \'self\' https://us.i.posthog.com');
+
+      const start = await fetch(`${base}/start`);
+      const startHtml = await start.text();
+      const record = await fetch(`${base}/record`);
+      const recordHtml = await record.text();
+      expect(startHtml).not.toContain('phc_test_public_key');
+      expect(recordHtml).not.toContain('phc_test_public_key');
+      expect(start.headers.get('content-security-policy')).not.toContain('posthog.com');
+      expect(record.headers.get('content-security-policy')).not.toContain('posthog.com');
+    } finally {
+      config.posthogKey = previousKey;
+      config.posthogHost = previousHost;
+    }
+  });
+
+  it('captures the setup and record funnel without private values', async () => {
+    const events: Array<{ event: string; distinctId: string; properties?: Record<string, unknown> }> = [];
+    const analytics: Analytics = {
+      capture(event, distinctId, properties) { events.push({ event, distinctId, properties }); },
+      async shutdown() {},
+    };
+    const { base, getVerifyUrl } = await fixture(analytics);
+    await fetch(`${base}/start`);
+    await fetch(`${base}/start`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ email: 'private-owner@example.com' }),
+    });
+    const verify = new URL(getVerifyUrl());
+    const connectedHtml = await (await fetch(`${base}${verify.pathname}${verify.search}`)).text();
+    const token = /Authorization: Bearer ([A-Za-z0-9_-]+)/.exec(connectedHtml)?.[1];
+    expect(token).toBeTruthy();
+
+    await fetch(`${base}/record`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ token: token! }),
+    });
+    await fetch(`${base}/record/export`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ token: token! }),
+    });
+
+    expect(events.map((event) => event.event)).toEqual([
+      '$pageview',
+      'confirmation_requested',
+      '$pageview',
+      'email_confirmed',
+      'token_issued',
+      'record_opened',
+      'record_exported',
+    ]);
+    expect(JSON.stringify(events)).not.toContain('private-owner@example.com');
+    expect(JSON.stringify(events)).not.toContain(token!);
+    expect(events.filter((event) => event.event === '$pageview').every((event) => !String(event.properties?.$current_url).includes('?'))).toBe(true);
+  });
+
   it('serves the hosted-first home, shared styles and truthful promise', async () => {
     const { base } = await fixture();
     const home = await fetch(`${base}/`);
