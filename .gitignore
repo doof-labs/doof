@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+*.log
+.DS_Store
+.gstack/
+# Generated evaluation transcripts can contain provider payloads and are large.
+# Keep the harness and published summaries; keep raw runs local.
+harness/runs/

@@ -1,0 +1,9 @@
+.git
+.gstack
+.env
+.env.*
+node_modules
+dist
+harness/runs
+*.log
+.DS_Store

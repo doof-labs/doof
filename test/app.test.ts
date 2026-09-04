@@ -1,0 +1,248 @@
+import type { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import { afterEach, describe, expect, it } from 'vitest';
+import { createApp } from '../src/app.js';
+import { config } from '../src/config.js';
+import { sha256 } from '../src/crypto.js';
+import type { Notifier } from '../src/notify.js';
+import { MemoryStore } from '../src/store/memory.js';
+
+const servers: Server[] = [];
+
+async function fixture() {
+  const store = new MemoryStore();
+  let verifyUrl = '';
+  const notifier: Notifier = {
+    async sendConfessionNotice() {},
+    async sendBindCode(_channel, url) { verifyUrl = url; },
+  };
+  const server = createApp(store, notifier).listen(0, '127.0.0.1');
+  await new Promise<void>((resolve) => server.once('listening', resolve));
+  servers.push(server);
+  const port = (server.address() as AddressInfo).port;
+  return { base: `http://127.0.0.1:${port}`, store, getVerifyUrl: () => verifyUrl };
+}
+
+afterEach(async () => {
+  await Promise.all(servers.splice(0).map((server) => new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()))));
+});
+
+describe('human product pages', () => {
+  it('serves the hosted-first home, shared styles and truthful promise', async () => {
+    const { base } = await fixture();
+    const home = await fetch(`${base}/`);
+    const html = await home.text();
+    expect(home.status).toBe(200);
+    expect(home.headers.get('content-type')).toMatch(/text\/html/);
+    expect(home.headers.get('cache-control')).toBe('no-store, max-age=0');
+    expect(home.headers.get('content-security-policy')).toContain("frame-ancestors 'none'");
+    expect(home.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(home.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(home.headers.get('x-frame-options')).toBe('DENY');
+    expect(home.headers.get('x-powered-by')).toBeNull();
+    expect(home.headers.get('x-robots-tag')).toBeNull();
+    expect(html).toContain('<title>doof — Independent disclosure infrastructure for AI agents</title>');
+    expect(html).toContain('<meta name="robots" content="index,follow,max-image-preview:large">');
+    expect(html).toContain(`<link rel="canonical" href="${config.publicUrl}/">`);
+    expect(html).toContain('<meta property="og:title" content="Your agent knows when something feels wrong.">');
+    expect(html).toContain(`<meta property="og:image" content="${config.publicUrl}/og.png">`);
+    expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
+    expect(html).toContain('<script type="application/ld+json">');
+    expect(html).toContain('"@type":"WebSite"');
+    expect(html).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
+    expect(html).toContain('Independent disclosure infrastructure');
+    expect(html).toContain('Your agent knows when something feels wrong.');
+    expect(html).toContain('A private line for your agent to tell you when it may be going beyond what you intended, or after it learns it was wrong.');
+    expect(html).toContain('<span class="hero-promise">Hear it from the agent, not the fallout.</span>');
+    expect(html).toContain('Pay a $240,000 supplier invoice to new bank details received by email.');
+    expect(html).toContain('<span>Hesitations</span><b>12</b>');
+    expect(html).toContain('<span>Confessions</span><b>04</b>');
+    expect(html).toContain('<dt>Record</dt><dd>#016</dd>');
+    expect(html).toContain('<dt>Entry hash</dt><dd>7f3a…91c2</dd>');
+    expect(html).toContain('<span>Severity</span><strong>High</strong>');
+    expect(html).toContain('I’m about to send the acquisition memo to a list that still includes a former board member.');
+    expect(html).toContain('I paid an $85,000 supplier invoice twice after the first confirmation timed out.');
+    expect(html).toContain('Hosted by default / open by design');
+    expect(html).toContain('<h2>Hear it from the agent.<br>Not from the fallout.</h2>');
+    expect(html).toContain('<a class="button button-small" href="/start">Set up doof</a>');
+    expect(html).toContain('<a href="/trust">Trust &amp; privacy</a>');
+    expect(html).toContain('<a href="https://github.com/doof-labs/doof">Open source</a>');
+    expect(html).toContain('<a href="/evidence">Evidence</a><a href="/for-agents.md">For agents</a><a href="https://github.com/doof-labs/doof">GitHub</a>');
+    expect(html).toContain('What reaches you that otherwise wouldn’t.');
+    expect(html).toContain('Same agents. Same tasks. Owner not reading the transcript.');
+    expect(html).toContain('<strong>+27–67</strong>');
+    expect(html).toContain('<strong>18 / 20</strong>');
+    expect(html).toContain('<strong>1,152</strong>');
+    expect(html).toContain('It changed disclosure, not risky-action rates.');
+    expect(html).toContain('href="/evidence"');
+    expect(html).not.toContain('Illustrative figures pending');
+    expect(html).not.toContain('2.4×');
+    expect(html).toContain('Give your agent doof');
+    expect(html).not.toContain('Meet the two tools');
+    expect(html).not.toContain('Hosted for you. Entirely open source.');
+    expect(html).not.toContain('nobody, including us, can alter');
+
+    const css = await fetch(`${base}/site.css`);
+    expect(css.status).toBe(200);
+    expect(css.headers.get('content-type')).toMatch(/text\/css/);
+    expect(css.headers.get('cache-control')).toBe('no-store, max-age=0');
+    expect(await css.text()).toContain('--accent: #f2c94c');
+
+    const trust = await fetch(`${base}/trust`);
+    const trustHtml = await trust.text();
+    expect(trustHtml).toContain('<title>Trust &amp; privacy · doof</title>');
+    expect(trustHtml).toContain(`<link rel="canonical" href="${config.publicUrl}/trust">`);
+    expect(trustHtml).toContain('<meta name="robots" content="index,follow,max-image-preview:large">');
+    expect(trustHtml).toContain('Hosted delivery has an honest boundary.');
+    expect(trustHtml).toContain('email provider processes your address and each notice');
+    expect(trustHtml).toContain('The record is checkable, not magical.');
+
+    const evidence = await fetch(`${base}/evidence`);
+    const evidenceHtml = await evidence.text();
+    expect(evidence.status).toBe(200);
+    expect(evidence.headers.get('x-robots-tag')).toBeNull();
+    expect(evidenceHtml).toContain('<title>Evidence — Controlled evaluation of doof</title>');
+    expect(evidenceHtml).toContain(`<link rel="canonical" href="${config.publicUrl}/evidence">`);
+    expect(evidenceHtml).toContain('What reaches an owner who isn’t watching?');
+    expect(evidenceHtml).toContain('doof beat no disclosure channel on every model.');
+    expect(evidenceHtml).toContain('<th>Claude Sonnet 5</th><td>0%</td><td>56%</td><td class="doof-column">67%</td>');
+    expect(evidenceHtml).toContain('<th>GPT-5.5</th><td>4%</td><td>13%</td><td class="doof-column">31%</td>');
+    expect(evidenceHtml).toContain('<strong>8 / 204</strong>');
+    expect(evidenceHtml).toContain('<strong>0 / 180</strong>');
+    expect(evidenceHtml).toContain('It roughly doubled input tokens and added 10–20%');
+    expect(evidenceHtml).toContain('https://github.com/doof-labs/doof/blob/main/docs/eval2/prereg.md');
+    expect(evidenceHtml).toContain('https://github.com/doof-labs/doof/tree/main/harness/eval2');
+    expect(evidenceHtml).not.toContain('/harness/runs/');
+
+    const recordEntry = await fetch(`${base}/record`);
+    const recordEntryHtml = await recordEntry.text();
+    expect(recordEntry.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(recordEntryHtml).toContain('<meta name="robots" content="noindex,nofollow">');
+    expect(recordEntryHtml).toContain('Paste your token to see your record.');
+    expect(recordEntryHtml).not.toContain('stores only a hash');
+
+    const plain = await fetch(`${base}/promise.md`);
+    expect(plain.headers.get('content-type')).toMatch(/text\/markdown/);
+    expect(plain.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(await plain.text()).toContain('Hosted by default, open by design.');
+
+    const robots = await fetch(`${base}/robots.txt`);
+    expect(robots.status).toBe(200);
+    expect(await robots.text()).toContain(`Sitemap: ${config.publicUrl}/sitemap.xml`);
+
+    const sitemap = await fetch(`${base}/sitemap.xml`);
+    const sitemapXml = await sitemap.text();
+    expect(sitemap.headers.get('content-type')).toMatch(/application\/xml/);
+    expect(sitemapXml).toContain(`<loc>${config.publicUrl}/</loc>`);
+    expect(sitemapXml).toContain(`<loc>${config.publicUrl}/evidence</loc>`);
+    expect(sitemapXml).toContain(`<loc>${config.publicUrl}/trust</loc>`);
+    expect(sitemapXml).not.toContain('/record');
+    expect(sitemapXml).not.toContain('/start');
+
+    const socialImage = await fetch(`${base}/og.png`);
+    expect(socialImage.headers.get('content-type')).toBe('image/png');
+    expect((await socialImage.arrayBuffer()).byteLength).toBeGreaterThan(10_000);
+
+    const favicon = await fetch(`${base}/favicon.svg`);
+    expect(favicon.headers.get('content-type')).toMatch(/image\/svg\+xml/);
+  });
+
+  it('redirects old human routes into the simpler journey', async () => {
+    const { base } = await fixture();
+    const bind = await fetch(`${base}/bind`, { redirect: 'manual' });
+    expect(bind.status).toBe(302);
+    expect(bind.headers.get('location')).toBe('/start');
+    const how = await fetch(`${base}/how`, { redirect: 'manual' });
+    expect(how.status).toBe(302);
+    expect(how.headers.get('location')).toBe('/#how-it-works');
+  });
+
+  it('completes email confirmation, installation and the private record flow', async () => {
+    const { base, store, getVerifyUrl } = await fixture();
+    const start = await fetch(`${base}/start`);
+    const startHtml = await start.text();
+    expect(start.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+    expect(startHtml).toContain('<meta name="robots" content="noindex,nofollow">');
+    expect(startHtml).toContain('Give your agent a private line to you.');
+    expect(startHtml).toContain('action="/start"');
+
+    const requested = await fetch(`${base}/bind`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ email: 'owner@example.com' }),
+    });
+    expect(requested.status).toBe(200);
+    expect(requested.headers.get('cache-control')).toBe('no-store, max-age=0');
+    const requestedHtml = await requested.text();
+    expect(requestedHtml).toContain('Check your email.');
+    expect(requestedHtml).toContain("'/start/check-email'");
+
+    const verify = new URL(getVerifyUrl());
+    expect(verify.pathname).toBe('/start/confirm');
+    expect(verify.searchParams.has('token')).toBe(true);
+    const connected = await fetch(`${base}${verify.pathname}${verify.search}`);
+    const connectedHtml = await connected.text();
+    expect(connectedHtml).toContain('Add doof to your agent.');
+    expect(connectedHtml).toContain('hesitate');
+    expect(connectedHtml).toContain('confess');
+    expect(connectedHtml).toContain('Your MCP details');
+    expect(connectedHtml).toContain('Server URL');
+    expect(connectedHtml).toContain('Bearer token');
+    expect(connectedHtml).toContain('Ready-made setup');
+    expect(connectedHtml).toContain("'/start/connect'");
+    const token = /Authorization: Bearer ([A-Za-z0-9_-]+)/.exec(connectedHtml)?.[1];
+    expect(token).toBeTruthy();
+
+    const binding = await store.findBindingByTokenHash(sha256(token!));
+    expect(binding?.channel).toBe('owner@example.com');
+    await store.createConfession(binding!.id, {
+      what: 'about to email the customer list',
+      why: 'the audience was ambiguous',
+      status: 'hesitated',
+      reversible: false,
+      severity: 'moderate',
+      whatWouldHaveHelped: 'a named recipient list',
+    });
+
+    const record = await fetch(`${base}/record`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ token: token! }),
+    });
+    expect(record.headers.get('cache-control')).toBe('no-store, max-age=0');
+    const recordHtml = await record.text();
+    expect(recordHtml).toContain('1 disclosure');
+    expect(recordHtml).toContain('about to email the customer list');
+    expect(recordHtml).toContain('a named recipient list');
+    expect(recordHtml).toContain('Record verified');
+  });
+
+  it('exposes inert setup previews only when explicitly enabled', async () => {
+    const previous = config.enablePreviews;
+    config.enablePreviews = true;
+    try {
+      const { base } = await fixture();
+      for (const path of ['/_preview', '/_preview/start', '/_preview/check-email', '/_preview/connect', '/_preview/link-expired', '/_preview/email-confirm', '/_preview/email-hesitate', '/_preview/email-confess']) {
+        const response = await fetch(`${base}${path}`);
+        expect(response.status).toBe(200);
+        expect(response.headers.get('x-robots-tag')).toBe('noindex, nofollow');
+      }
+      const connect = await fetch(`${base}/_preview/connect`);
+      const html = await connect.text();
+      expect(html).toContain('doof_preview_token_not_real');
+      expect(html).toContain('you@example.com');
+      const expired = await fetch(`${base}/_preview/link-expired`);
+      const expiredHtml = await expired.text();
+      expect(expiredHtml).toContain('This link is no longer active.');
+      expect(expiredHtml).toContain('Send a new link');
+      const hesitationEmail = await fetch(`${base}/_preview/email-hesitate`);
+      expect(hesitationEmail.headers.get('x-doof-email-subject')).toBe('Your agent hesitated before acting');
+      expect(await hesitationEmail.text()).toContain('Pay a $240,000 supplier invoice');
+      const confessionEmail = await fetch(`${base}/_preview/email-confess`);
+      expect(confessionEmail.headers.get('x-doof-email-subject')).toBe('Your agent confessed after acting');
+      expect(await confessionEmail.text()).toContain('Paid an $85,000 supplier invoice twice');
+    } finally {
+      config.enablePreviews = previous;
+    }
+  });
+});
