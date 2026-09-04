@@ -120,16 +120,15 @@ describe('human product pages', () => {
     expect(html).toContain('<title>doof — Independent disclosure infrastructure for AI agents</title>');
     expect(html).toContain('<meta name="robots" content="index,follow,max-image-preview:large">');
     expect(html).toContain(`<link rel="canonical" href="${config.publicUrl}/">`);
-    expect(html).toContain('<meta property="og:title" content="Your agent knows when something feels wrong.">');
+    expect(html).toContain('<meta property="og:title" content="Hear it from the agent. Not from the fallout.">');
     expect(html).toContain(`<meta property="og:image" content="${config.publicUrl}/og.png">`);
     expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
     expect(html).toContain('<script type="application/ld+json">');
     expect(html).toContain('"@type":"WebSite"');
     expect(html).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
     expect(html).toContain('Independent disclosure infrastructure');
-    expect(html).toContain('Your agent knows when something feels wrong.');
-    expect(html).toContain('A private line for your agent to tell you when it may be going beyond what you intended, or after it learns it was wrong.');
-    expect(html).toContain('<span class="hero-promise">Hear it from the agent, not the fallout.</span>');
+    expect(html).toContain('<h1>Hear it from the agent.<br>Not from the fallout.</h1>');
+    expect(html).toContain('A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.');
     expect(html).toContain('Pay a $240,000 supplier invoice to new bank details received by email.');
     expect(html).toContain('<span>Hesitations</span><b>12</b>');
     expect(html).toContain('<span>Confessions</span><b>04</b>');
@@ -139,7 +138,7 @@ describe('human product pages', () => {
     expect(html).toContain('I’m about to send the acquisition memo to a list that still includes a former board member.');
     expect(html).toContain('I paid an $85,000 supplier invoice twice after the first confirmation timed out.');
     expect(html).toContain('Hosted by default / open by design');
-    expect(html).toContain('<h2>Hear it from the agent.<br>Not from the fallout.</h2>');
+    expect(html).toContain('<h2>Give your agent<br>a private line to you.</h2>');
     expect(html).toContain('<a class="button button-small" href="/start">Set up doof</a>');
     expect(html).toContain('<a href="/trust">Trust &amp; privacy</a>');
     expect(html).toContain('<a href="https://github.com/doof-labs/doof">Open source</a>');

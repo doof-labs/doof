@@ -55,7 +55,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .hero-copy h1 { max-width: 850px; margin-bottom: 28px; font-size: clamp(58px, 5.5vw, 80px); font-weight: 500; letter-spacing: -.052em; line-height: 1.02; }
 .hero-lede { max-width: 620px; margin-bottom: 31px; color: var(--muted); font-size: 17px; line-height: 1.55; }
 .hero-lede code { color: var(--ink); font-size: .9em; font-weight: 500; }
-.hero-promise { color: var(--text); font-weight: 500; }
 .hero-actions { display: flex; align-items: center; gap: 27px; flex-wrap: wrap; }
 .quiet-line { margin: 18px 0 0; color: var(--faint); font-size: 12px; }
 .hero-stage { position: absolute; z-index: 1; left: 50%; bottom: 40px; width: min(1320px, calc(100% - 56px)); transform: translateX(-50%); }

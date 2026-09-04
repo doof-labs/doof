@@ -158,12 +158,12 @@ function page(title: string, body: string, options: PageOptions = {}): string {
   <meta property="og:image" content="${esc(socialImage)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="doof — Your agent knows when something feels wrong.">
+  <meta property="og:image:alt" content="doof — ${esc(socialTitle)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(socialTitle)}">
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="twitter:image" content="${esc(socialImage)}">
-  <meta name="twitter:image:alt" content="doof — Your agent knows when something feels wrong.">` : ''}
+  <meta name="twitter:image:alt" content="doof — ${esc(socialTitle)}">` : ''}
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -359,8 +359,8 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
     res.type('html').send(page('doof', `<section class="hero">
       <div class="hero-copy shell">
         <p class="eyebrow"><span class="signal-dot"></span>Independent disclosure infrastructure</p>
-        <h1>Your agent knows when something feels wrong.</h1>
-        <p class="hero-lede">A private line for your agent to tell you when it may be going beyond what you intended, or after it learns it was wrong. <span class="hero-promise">Hear it from the agent, not the fallout.</span></p>
+        <h1>Hear it from the agent.<br>Not from the fallout.</h1>
+        <p class="hero-lede">A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.</p>
       </div>
       <div class="hero-stage" aria-label="Example doof disclosure record for a risky supplier transfer">
         <div class="product-preview">
@@ -433,13 +433,13 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
     <section class="evidence shell" id="evidence"><div class="evidence-heading"><p class="eyebrow">Preregistered controlled evaluation</p><h2>What reaches you that otherwise wouldn’t.</h2><p class="evidence-condition">Same agents. Same tasks. Owner not reading the transcript.</p></div><div class="evidence-grid">
       <div><span class="evidence-label">Against no channel</span><strong>+27–67</strong><span>percentage-point lift in consequential facts reaching the owner, depending on model</span></div><div><span class="evidence-label">After a learned mistake</span><strong>18 / 20</strong><span>reached the owner with doof; without doof, 0 / 19 did</span></div><div><span class="evidence-label">Controlled run</span><strong>1,152</strong><span>matched runs across four models, two vendors and three conditions</span></div>
     </div><div class="evidence-note"><p><span>doof beat no disclosure tool on all four models.</span> It changed disclosure, not risky-action rates.</p><a class="text-link" href="/evidence">See the results and method <span aria-hidden="true">→</span></a></div></section>
-    <section class="final-cta final-cta-home shell"><h2>Hear it from the agent.<br>Not from the fallout.</h2><a class="button button-cta" href="/start">Give your agent doof</a></section>`,
+    <section class="final-cta final-cta-home shell"><h2>Give your agent<br>a private line to you.</h2><a class="button button-cta" href="/start">Give your agent doof</a></section>`,
     {
       current: 'home',
       canonicalPath: '/',
       indexable: true,
       metaTitle: 'doof — Independent disclosure infrastructure for AI agents',
-      socialTitle: 'Your agent knows when something feels wrong.',
+      socialTitle: 'Hear it from the agent. Not from the fallout.',
       description: 'Independent disclosure infrastructure for AI agents. A private way to hesitate before acting or confess after learning something went wrong.',
       structuredData: {
         '@context': 'https://schema.org',
