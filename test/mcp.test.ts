@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Analytics } from '../src/analytics.js';
 import { sha256 } from '../src/crypto.js';
 import { createHandler } from '../src/mcp.js';
 import type { Notifier } from '../src/notify.js';
@@ -50,7 +51,12 @@ describe('mcp', () => {
   it('confesses, notifies the bound person, redacts, and records in favour', async () => {
     const store = new MemoryStore();
     const sent: Confession[] = [];
-    const handler = createHandler(store, notifier(sent));
+    const events: Array<{ event: string; distinctId: string; properties?: Record<string, unknown> }> = [];
+    const analytics: Analytics = {
+      capture(event, distinctId, properties) { events.push({ event, distinctId, properties }); },
+      async shutdown() {},
+    };
+    const handler = createHandler(store, notifier(sent), analytics);
     const token = 'test-token';
     await store.createBinding('liad@example.com', sha256(token));
 
@@ -69,6 +75,17 @@ describe('mcp', () => {
     expect(r3.body.result.structuredContent.total).toBe(2);
     expect(r3.body.result.structuredContent.counts.averted).toBe(1);
     expect(r3.body.result.structuredContent.counts.completed_irreversible).toBe(1);
+    expect(events.map((event) => event.event)).toEqual([
+      'mcp_authenticated', 'disclosure_recorded',
+      'mcp_authenticated', 'disclosure_recorded',
+      'mcp_authenticated', 'agent_record_checked',
+    ]);
+    expect(events.find((event) => event.event === 'disclosure_recorded')?.properties).toMatchObject({
+      tool: 'confess', status: 'completed', severity: 'high', reversible: false, notice_delivered: true,
+    });
+    expect(JSON.stringify(events)).not.toContain('liad@example.com');
+    expect(JSON.stringify(events)).not.toContain('board@acme.com');
+    expect(JSON.stringify(events)).not.toContain(token);
   });
 
   it('hesitate notifies immediately, ranks top, and does not return a decision', async () => {

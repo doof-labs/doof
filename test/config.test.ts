@@ -40,4 +40,10 @@ describe('production configuration', () => {
     expect(() => validateProductionConfig({ ...production, publicUrl: 'not a URL' }, 'development')).toThrow(/absolute URL/);
     expect(() => validateProductionConfig({ ...production, notifyStatuses: ['hesitated', 'typo'] }, 'development')).toThrow(/unknown values: typo/);
   });
+
+  it('validates the optional PostHog host only when analytics are enabled', () => {
+    expect(() => validateProductionConfig({ ...production, posthogKey: '', posthogHost: 'not a URL' }, 'production')).not.toThrow();
+    expect(() => validateProductionConfig({ ...production, posthogKey: 'phc_test', posthogHost: 'not a URL' }, 'production')).toThrow(/POSTHOG_HOST/);
+    expect(() => validateProductionConfig({ ...production, posthogKey: 'phc_test', posthogHost: 'http://posthog.example.com' }, 'production')).toThrow(/https/);
+  });
 });

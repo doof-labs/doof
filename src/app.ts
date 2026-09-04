@@ -5,6 +5,7 @@ import { createMcpExpressApp } from '@modelcontextprotocol/express';
 import { toNodeHandler } from '@modelcontextprotocol/node';
 import type { Express, Request, Response, NextFunction } from 'express';
 import express from 'express';
+import { analyticsId, noAnalytics, type Analytics } from './analytics.js';
 import { config } from './config.js';
 import { randomToken, sha256 } from './crypto.js';
 import { candourRecord } from './favour.js';
@@ -20,6 +21,7 @@ const read = (f: string) => readFileSync(join(publicDir, f), 'utf8');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const REPO_URL = 'https://github.com/doof-labs/doof';
 const FRESH_BROWSER_PATHS = new Set(['/', '/start', '/bind', '/bind/verify', '/trust', '/evidence', '/record', '/site.css']);
+const BROWSER_ANALYTICS_PATHS = new Set(['/', '/evidence', '/trust']);
 type PageName = 'home' | 'start' | 'record' | 'trust' | 'evidence';
 
 interface PageOptions {
@@ -34,6 +36,44 @@ interface PageOptions {
 
 function esc(text: string): string {
   return text.replace(/[&<>\"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] as string);
+}
+
+function jsValue(value: string): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
+function posthogScript(): string {
+  if (!config.posthogKey) return '';
+  return `<script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog&&window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p||((p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",p.onerror=function(){p=null},(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r));var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="capture identify set_config startSessionRecording stopSessionRecording opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing reset onFeatureFlags getFeatureFlag isFeatureEnabled".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init(${jsValue(config.posthogKey)}, {
+      api_host: ${jsValue(config.posthogHost)},
+      defaults: '2026-05-30',
+      person_profiles: 'identified_only',
+      autocapture: false,
+      disable_session_recording: true,
+      capture_pageview: false,
+      capture_pageleave: false
+    });
+    posthog.capture('$pageview', {
+      $current_url: window.location.origin + window.location.pathname,
+      $pathname: window.location.pathname,
+      $geoip_disable: true
+    });
+  </script>`;
+}
+
+function contentSecurityPolicy(allowBrowserAnalytics: boolean): string {
+  let scriptSources = "'self' 'unsafe-inline'";
+  let connectSources = "'self'";
+  if (config.posthogKey && allowBrowserAnalytics) {
+    const api = new URL(config.posthogHost);
+    const assets = new URL(config.posthogHost);
+    assets.hostname = assets.hostname.replace('.i.posthog.com', '-assets.i.posthog.com');
+    scriptSources += ` ${assets.origin}`;
+    connectSources += ` ${api.origin}`;
+  }
+  return `default-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src ${scriptSources}; connect-src ${connectSources}`;
 }
 
 function toEntry(c: Confession): LedgerEntry {
@@ -99,6 +139,7 @@ function page(title: string, body: string, options: PageOptions = {}): string {
   const structuredData = options.structuredData
     ? `<script type="application/ld+json">${JSON.stringify(options.structuredData).replace(/</g, '\\u003c')}</script>`
     : '';
+  const analytics = indexable ? posthogScript() : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -129,6 +170,7 @@ function page(title: string, body: string, options: PageOptions = {}): string {
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/site.css">
   ${structuredData}
+  ${analytics}
 </head>
 <body>
   <header class="site-header">
@@ -254,7 +296,7 @@ function previewConfession(status: 'hesitated' | 'completed'): Confession {
   };
 }
 
-export function createApp(store: Store, notifier: Notifier): Express {
+export function createApp(store: Store, notifier: Notifier, analytics: Analytics = noAnalytics): Express {
   const siteCss = read('site.css');
   const app = createMcpExpressApp({ host: '0.0.0.0', allowedHosts: config.allowedHosts });
   app.disable('x-powered-by');
@@ -262,7 +304,7 @@ export function createApp(store: Store, notifier: Notifier): Express {
   app.use(express.urlencoded({ extended: false }));
   app.use((req, res, next) => {
     res.set({
-      'Content-Security-Policy': "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'",
+      'Content-Security-Policy': contentSecurityPolicy(BROWSER_ANALYTICS_PATHS.has(req.path)),
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
       'Referrer-Policy': 'no-referrer',
@@ -270,6 +312,17 @@ export function createApp(store: Store, notifier: Notifier): Express {
       'X-Frame-Options': 'DENY',
     });
     if (process.env.NODE_ENV === 'production') res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    if ((req.method === 'GET' || req.method === 'HEAD') && (
+      req.path === '/start' || req.path.startsWith('/start/') ||
+      req.path === '/bind' || req.path.startsWith('/bind/') ||
+      req.path === '/record'
+    )) {
+      analytics.capture('$pageview', `page_${randomToken(16)}`, {
+        $current_url: `${config.publicUrl}${req.path}`,
+        $pathname: req.path,
+        delivery: 'server',
+      });
+    }
     if (FRESH_BROWSER_PATHS.has(req.path) || req.path.startsWith('/start/') || req.path.startsWith('/_preview')) {
       res.set('Cache-Control', 'no-store, max-age=0');
     }
@@ -289,7 +342,7 @@ export function createApp(store: Store, notifier: Notifier): Express {
     }
     next();
   });
-  const mcp = toNodeHandler(createHandler(store, notifier), { onerror: (e) => console.error('mcp', e) });
+  const mcp = toNodeHandler(createHandler(store, notifier, analytics), { onerror: (e) => console.error('mcp', e) });
 
   app.get('/site.css', (_req, res) => res.type('text/css; charset=utf-8').send(siteCss));
   app.get('/favicon.svg', (_req, res) => res.sendFile(join(publicDir, 'favicon.svg')));
@@ -470,7 +523,7 @@ export function createApp(store: Store, notifier: Notifier): Express {
       <article><span>02</span><div><h2>doof is not in the way.</h2><p>It does not proxy, intercept, delay, permit, block or reverse an action. Your agent calls doof voluntarily.</p></div></article>
       <article><span>03</span><div><h2>doof does not judge.</h2><p>It records what the agent said and tells you. You decide whether the concern was justified and what happens next.</p></div></article>
       <article><span>04</span><div><h2>Your record is private by default.</h2><p>Hosted doof stores the disclosure, its status and time, and your confirmed email. It has no user profile, organisation graph or advertising identity. doof does not sell disclosures or use them to train models.</p></div></article>
-      <article><span>05</span><div><h2>Hosted delivery has an honest boundary.</h2><p>The hosted operator can technically access its database and backups. Its email provider processes your address and each notice to deliver it. doof staff should read disclosure content only when you ask for delivery help. If that trust is unacceptable, self-host the same public code.</p></div></article>
+      <article><span>05</span><div><h2>Hosted delivery has an honest boundary.</h2><p>The hosted operator can technically access its database and backups. Its email provider processes your address and each notice to deliver it. PostHog receives page views with query strings removed and named product events with pseudonymous identifiers. Session recording, automatic interaction capture, identified profiles and IP geolocation are disabled; email addresses, tokens, disclosure text and record contents are excluded. doof staff should read disclosure content only when you ask for delivery help. If that trust is unacceptable, self-host the same public code.</p></div></article>
       <article><span>06</span><div><h2>The record is checkable, not magical.</h2><p>Entries are linked and signed. You can export your record and verify its contents offline. This can reveal alteration or missing entries when compared with a receipt or earlier export. It does not make a server operator incapable of changing its own database.</p></div></article>
       <article><span>07</span><div><h2>The whole server is open source.</h2><p>doof.com runs the public Apache-2.0 code. Anyone can inspect what it stores and sends, or operate an independent instance with their own database, email provider, signing key and backups.</p></div></article>
     </section>
@@ -521,6 +574,7 @@ export function createApp(store: Store, notifier: Notifier): Express {
     const binding = token ? await store.findBindingByTokenHash(sha256(token)) : null;
     if (!binding) return res.status(404).type('html').send(page('Record not found', `<section class="page-hero shell narrow"><p class="eyebrow">Not found</p><h1>That token did not open a record.</h1><p class="page-lede">Check that you copied the whole token, or set up doof again if it has been lost.</p><div class="hero-actions"><a class="button" href="/record">Try again</a><a class="text-link" href="/start">Set up doof <span aria-hidden="true">→</span></a></div></section>`, { current: 'record' }));
     const all = await store.listConfessions(binding.id);
+    analytics.capture('record_opened', analyticsId('binding', binding.id), { disclosure_count: all.length });
     const chain = verifyChain(all.map(toEntry), store.signer.publicKey, store.signer.kid);
     const list = [...all].sort((a, b) => b.seq - a.seq);
     const rec = candourRecord(list);
@@ -538,6 +592,7 @@ export function createApp(store: Store, notifier: Notifier): Express {
     const binding = token ? await store.findBindingByTokenHash(sha256(token)) : null;
     if (!binding) return res.status(404).json({ error: 'No record for that token.' });
     const entries = (await store.listConfessions(binding.id)).map(toEntry);
+    analytics.capture('record_exported', analyticsId('binding', binding.id), { disclosure_count: entries.length });
     res.setHeader('content-disposition', `attachment; filename="doof-record-${binding.id}.json"`);
     res.json({ format: 'doof-ledger/1', binding_id: binding.id, alg: 'Ed25519', kid: store.signer.kid, publicKey: store.signer.publicKey, exported_at: new Date().toISOString(), entries });
   });
@@ -555,8 +610,9 @@ export function createApp(store: Store, notifier: Notifier): Express {
     const email = String(req.body?.email ?? '').trim().toLowerCase();
     if (email.length > 254 || !EMAIL.test(email)) return res.status(400).type('html').send(page('Check your email address', `<section class="page-hero shell narrow"><p class="eyebrow">Something is missing</p><h1>That does not look like an email address.</h1><p class="page-lede">Check it and try once more.</p><a class="button" href="/start">Try again</a></section>`, { current: 'start' }));
     const code = randomToken(24);
-    await store.createVerification(email, sha256(code), new Date(Date.now() + 30 * 60 * 1000));
+    const verification = await store.createVerification(email, sha256(code), new Date(Date.now() + 30 * 60 * 1000));
     await notifier.sendBindCode(email, `${config.publicUrl}/start/confirm?token=${code}`);
+    analytics.capture('confirmation_requested', analyticsId('verification', verification.id), { channel: 'email' });
     res.type('html').send(page('Check your email', checkEmailBody(email, true), { current: 'start' }));
   };
   app.post('/start', limiter(10), requestBinding);
@@ -567,7 +623,9 @@ export function createApp(store: Store, notifier: Notifier): Express {
     const v = code ? await store.consumeVerification(sha256(code), new Date()) : null;
     if (!v) return res.status(400).type('html').send(page('Link no longer valid', expiredBody(), { current: 'start' }));
     const token = randomToken(32);
-    await store.createBinding(v.channel, sha256(token));
+    const binding = await store.createBinding(v.channel, sha256(token));
+    analytics.capture('email_confirmed', analyticsId('verification', v.id), { channel: 'email' });
+    analytics.capture('token_issued', analyticsId('binding', binding.id), { channel: 'email' });
     const url = config.publicUrl;
     res.type('html').send(page('Add doof with MCP', connectBody(v.channel, token, url, true),
     { current: 'start', description: 'Add hosted doof to your AI agent.' }));

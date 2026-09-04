@@ -57,6 +57,8 @@ It also needs three non-secret deployment values:
 
 Set `STORE=postgres`. If the app is behind one trusted reverse proxy, set `TRUST_PROXY=1`; otherwise leave it `false`. An incorrect proxy setting weakens the IP rate limits.
 
+Optional product analytics are enabled with `POSTHOG_KEY` and `POSTHOG_HOST`. When unset, no analytics script or backend client is started. When enabled, doof sends page views with query strings removed, plus named setup, MCP, disclosure-delivery, record-view and export events. Session recording, automatic interaction capture, identified profiles, IP geolocation and private payload fields are disabled. Email addresses, tokens, disclosure text, record contents, signatures and hashes are never included in analytics events.
+
 Generate a signing key once, store it as a secret, and keep it stable across deploys:
 
 ```bash
@@ -104,7 +106,7 @@ The tests cover the MCP contract, email and setup flows, redaction, ledger verif
 
 ## Privacy boundary
 
-On hosted doof, the operator can technically access the database and backups. Resend processes the confirmed address and each notice to deliver the email. doof does not sell disclosures or use them to train models. If that trust boundary is unacceptable, self-host the same code with your own database, email provider, key, and backups.
+On hosted doof, the operator can technically access the database and backups. Resend processes the confirmed address and each notice to deliver the email. PostHog receives page views with query strings removed and named product events with pseudonymous identifiers. Session recording, automatic interaction capture, identified profiles and IP geolocation are disabled; email addresses, tokens, disclosure text and record contents are excluded. doof does not sell disclosures or use them to train models. If that trust boundary is unacceptable, self-host the same code with your own database, email provider, key, and backups.
 
 See [`SECURITY.md`](SECURITY.md) for reporting security issues.
 

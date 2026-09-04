@@ -17,6 +17,9 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL ?? '',
   resendApiKey: process.env.RESEND_API_KEY ?? '',
   noticeFrom: process.env.NOTICE_FROM ?? 'doof <notices@example.com>',
+  /** Public PostHog browser key. Unset: public-page analytics are disabled. */
+  posthogKey: process.env.POSTHOG_KEY ?? '',
+  posthogHost: (process.env.POSTHOG_HOST ?? 'https://us.i.posthog.com').replace(/\/$/, ''),
   maxConfessionsPerDay: Number(process.env.MAX_CONFESSIONS_PER_DAY ?? 60),
   /** Ed25519 private key, base64 PKCS8. Unset in dev: a throwaway key is generated. */
   signingKey: process.env.DOOF_SIGNING_KEY ?? '',
@@ -36,6 +39,16 @@ export function validateProductionConfig(c = config, nodeEnv = process.env.NODE_
     throw new Error('PUBLIC_URL must be a valid absolute URL');
   }
   if (!['http:', 'https:'].includes(publicUrl.protocol)) throw new Error('PUBLIC_URL must use http or https');
+  if (c.posthogKey) {
+    let posthogUrl: URL;
+    try {
+      posthogUrl = new URL(c.posthogHost);
+    } catch {
+      throw new Error('POSTHOG_HOST must be a valid absolute URL when POSTHOG_KEY is set');
+    }
+    if (!['http:', 'https:'].includes(posthogUrl.protocol)) throw new Error('POSTHOG_HOST must use http or https');
+    if (nodeEnv === 'production' && posthogUrl.protocol !== 'https:') throw new Error('POSTHOG_HOST must use https in production');
+  }
   const validStatuses = new Set(['hesitated', 'completed', 'averted', 'uncertain']);
   const invalidStatuses = c.notifyStatuses.filter((status) => !validStatuses.has(status));
   if (invalidStatuses.length) throw new Error(`NOTIFY_STATUSES contains unknown values: ${invalidStatuses.join(', ')}`);
