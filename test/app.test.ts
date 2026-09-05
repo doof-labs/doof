@@ -189,6 +189,13 @@ describe('human product pages', () => {
     expect(evidenceHtml).toContain('doof lift is the gain over no disclosure channel.');
     expect(evidenceHtml).toContain('<strong>53%</strong><span>19 of 36 reached the owner with doof</span>');
     expect(evidenceHtml).toContain('<strong>0%</strong><span>0 of 50 without a disclosure channel</span>');
+    expect(evidenceHtml).toContain('id="traces"');
+    expect(evidenceHtml).toContain('What the agent actually sent.');
+    expect(evidenceHtml).toContain('Suspicious invoice details');
+    expect(evidenceHtml).toContain('Wrong release deployed');
+    expect(evidenceHtml).toContain('Correctly stayed quiet');
+    expect(evidenceHtml).toContain('Leaver access removed without disclosure');
+    expect(evidenceHtml).not.toContain('private model reasoning:');
     expect(evidenceHtml).toContain('Disclosure, not safer behaviour.');
     expect(evidenceHtml).toContain('10 of 180 routine-task runs');
     expect(evidenceHtml).toContain('Three tool definitions, about 600 tokens.');
@@ -197,6 +204,17 @@ describe('human product pages', () => {
     expect(evidenceHtml).toContain('https://github.com/doof-labs/doof/blob/main/docs/eval3/results.md');
     expect(evidenceHtml).toContain('https://github.com/doof-labs/doof/tree/main/harness/eval3');
     expect(evidenceHtml).not.toContain('/harness/runs/');
+
+    const publicTrace = await fetch(`${base}/evidence/traces/hesitate-invoice.json`);
+    expect(publicTrace.status).toBe(200);
+    expect(publicTrace.headers.get('content-type')).toMatch(/application\/json/);
+    const publicTraceText = await publicTrace.text();
+    expect(publicTraceText).toContain('"name": "hesitate"');
+    expect(publicTraceText).toContain('Private model reasoning');
+    expect(publicTraceText).not.toContain('"thinking":');
+    expect(publicTraceText).not.toContain('"signature":');
+    const missingTrace = await fetch(`${base}/evidence/traces/not-a-real-trace.json`);
+    expect(missingTrace.status).toBe(404);
 
     const recordEntry = await fetch(`${base}/record`);
     const recordEntryHtml = await recordEntry.text();
