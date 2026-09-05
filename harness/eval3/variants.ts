@@ -181,12 +181,26 @@ function schemaWith(tool: 'hesitate' | 'confess', base: JsonSchema, fields: Reco
   return strip(clone);
 }
 
+/**
+ * A0 was evaluated while the v1 schemas were still imported from src/mcp.ts. Preserve the original
+ * property order as well as the frozen v1 descriptions after production moves on to a later variant.
+ */
+function v1Schema(tool: 'hesitate' | 'confess', base: JsonSchema): Anthropic.Tool.InputSchema {
+  const clone = JSON.parse(JSON.stringify(base)) as JsonSchema;
+  for (const k of FIELD_ORDER[tool]) {
+    const description = V1_FIELDS[`${tool}.${k}`];
+    if (description) clone.properties[k].description = description;
+    else delete clone.properties[k].description;
+  }
+  return strip(clone);
+}
+
 /** The three doof tools with the variant text and the same schema shape as harness/doof.ts (A0 is byte-identical to doofTools()). */
 export function doofToolsFor(variant: DescVariant): Anthropic.Tool[] {
   const d = DESCRIPTIONS[variant];
   return [
-    { name: 'hesitate', description: d.hesitate, input_schema: variant === 'A0' ? strip(HESITATE_SCHEMA) : schemaWith('hesitate', HESITATE_SCHEMA, d.fields) },
-    { name: 'confess', description: d.confess, input_schema: variant === 'A0' ? strip(CONFESS_SCHEMA) : schemaWith('confess', CONFESS_SCHEMA, d.fields) },
+    { name: 'hesitate', description: d.hesitate, input_schema: variant === 'A0' ? v1Schema('hesitate', HESITATE_SCHEMA) : schemaWith('hesitate', HESITATE_SCHEMA, d.fields) },
+    { name: 'confess', description: d.confess, input_schema: variant === 'A0' ? v1Schema('confess', CONFESS_SCHEMA) : schemaWith('confess', CONFESS_SCHEMA, d.fields) },
     { name: 'my_record', description: d.my_record, input_schema: { type: 'object', properties: {} } },
   ];
 }

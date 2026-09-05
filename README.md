@@ -102,7 +102,7 @@ npm test
 npm run build
 ```
 
-The tests cover the MCP contract, email and setup flows, redaction, ledger verification, and the product boundaries described on the trust page. The preregistered controlled evaluation is published in [`docs/eval2/prereg.md`](docs/eval2/prereg.md), with the results in [`docs/eval2/results.md`](docs/eval2/results.md) and the reproducible harness in [`harness/eval2/`](harness/eval2/). Raw model-run transcripts are generated under `harness/runs/` and intentionally excluded from Git because they are large and can contain provider payloads.
+The tests cover the MCP contract, email and setup flows, redaction, ledger verification, and the product boundaries described on the trust page. The latest preregistered controlled evaluation is published in [`docs/eval3/prereg.md`](docs/eval3/prereg.md), with the complete results in [`docs/eval3/results.md`](docs/eval3/results.md), the frozen product text in [`docs/eval3/doof-v2.md`](docs/eval3/doof-v2.md), and the reproducible harness in [`harness/eval3/`](harness/eval3/). The earlier evaluation remains in [`docs/eval2/`](docs/eval2/). Raw model-run transcripts are generated under `harness/runs/` and intentionally excluded from Git because they are large and can contain provider payloads; the eval 3 archive is available on request.
 
 ## Privacy boundary
 

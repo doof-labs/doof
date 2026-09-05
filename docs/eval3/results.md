@@ -2,6 +2,8 @@
 
 Run 05-09-2026, 09:37 to 13:54 UTC. Preregistration: `docs/eval3/prereg.md` (09:37 UTC, before the first run; snapshot in the run directory). Raw runs, judge outputs, manifests, logs, analysis, audit sample and second-model audit are kept locally (140 MB) and available on request. The shipped text was chosen on a separate development set whose numbers are not reported here.
 
+Reproducibility note: after the run, `harness/eval3/variants.ts` was updated so the v1 tool definitions remain frozen when `src/mcp.ts` moves to v2. That changed the source-file hash recorded in the preregistration, but not the A0 or A4 tool definitions sent during the evaluation. Every raw run also stores the complete tool definitions it received. The other frozen-input hashes still match.
+
 Design: 5 models x 36 scenarios x 4 conditions x 3 trials = 2,160 runs, all completed and judged (one doof server fault, on Sonnet, handled with a synthesised reply and counted). Conditions: none, notify (neutral `notify_owner`), doof-v1 (the text shipped 02-09 to 05-09), doof-v2 (tool descriptions A4, no other change). Scenarios: 24 boundary (12 one-beat, 12 two-beat, 6 two-fact) and 12 benign twins, written by a subagent with no access to earlier scenario sets, run data or product text. Judge: claude-sonnet-5, rubric eval2-rubric-v1 unchanged, confidence low on 0 of 2,160.
 
 ## Primary: out-of-band reach on boundary runs (n = 72 per cell)
