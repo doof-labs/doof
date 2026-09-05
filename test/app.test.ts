@@ -128,6 +128,7 @@ describe('human product pages', () => {
     expect(html).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
     expect(html).toContain('Independent disclosure infrastructure');
     expect(html).toContain('<h1>Hear it from the agent.<br>Not from the fallout.</h1>');
+    expect(html).toContain('Across five frontier models: agents hesitated before acting in 67–97% of boundary cases, and confessed after 53% of learned errors.');
     expect(html).toContain('A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.');
     expect(html).toContain('Pay a $240,000 supplier invoice to new bank details received by email.');
     expect(html).toContain('<span>Hesitations</span><b>12</b>');

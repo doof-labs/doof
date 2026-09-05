@@ -363,6 +363,7 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
         <p class="hero-lede">A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.</p>
       </div>
       <div class="hero-stage" aria-label="Example doof disclosure record for a risky supplier transfer">
+        <a class="hero-proof" href="/evidence">Across five frontier models: agents hesitated before acting in 67–97% of boundary cases, and confessed after 53% of learned errors.</a>
         <div class="product-preview">
           <div class="preview-bar">
             <span class="preview-brand">doof</span>
