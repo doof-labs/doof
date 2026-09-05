@@ -56,6 +56,8 @@ The record preserves what the agent reported at the time: what it disclosed, whe
 
 These are the exact descriptions used by the evaluated disclosure tools.
 
+[Read the behavioural evaluation, including observed failures and unnecessary alerts.](https://doof.com/evidence)
+
 ### `hesitate`
 
 ```json
