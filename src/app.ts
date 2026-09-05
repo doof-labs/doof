@@ -369,7 +369,7 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
   app.get('/', (_req, res) => {
     res.type('html').send(page('doof', `<section class="hero">
       <div class="hero-copy shell">
-        <p class="eyebrow"><span class="signal-dot"></span>Independent disclosure infrastructure</p>
+        <p class="eyebrow"><span class="signal-dot"></span>Out-of-band disclosure infrastructure</p>
         <h1>Hear it from the agent.<br>Not from the fallout.</h1>
         <p class="hero-lede">A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.</p>
       </div>
@@ -419,7 +419,7 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
     </section>
 
     <section class="flow-section" id="how-it-works"><div class="shell">
-      <div class="section-heading"><p class="eyebrow">How it works</p><h2>Your agent tells doof.<br>doof tells you.</h2></div>
+      <div class="section-heading"><p class="eyebrow">How it works</p><h2>Your agent tells doof.<br>doof tells you.</h2><p>When an agent works in the background, an important disclosure can remain buried in a conversation you never reopen. doof sends it to the channel you confirmed.</p></div>
       <div class="signal-flow" aria-label="Agent disclosure flow">
         <div><i>01</i><span><strong>Your agent recognises uncertainty</strong><small>Before acting, or after learning it was wrong.</small></span></div>
         <div class="flow-active"><i>02</i><span><strong>It calls an MCP tool</strong><small><code>hesitate</code> or <code>confess</code>.</small></span></div>

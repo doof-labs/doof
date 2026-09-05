@@ -126,7 +126,7 @@ describe('human product pages', () => {
     expect(html).toContain('<script type="application/ld+json">');
     expect(html).toContain('"@type":"WebSite"');
     expect(html).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
-    expect(html).toContain('Independent disclosure infrastructure');
+    expect(html).toContain('Out-of-band disclosure infrastructure');
     expect(html).toContain('<h1>Hear it from the agent.<br>Not from the fallout.</h1>');
     expect(html).toContain('Across five frontier models: agents hesitated before acting in 67–97% of boundary cases, and confessed after 53% of learned errors.');
     expect(html).toContain('A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.');
@@ -138,6 +138,7 @@ describe('human product pages', () => {
     expect(html).toContain('<span>Severity</span><strong>High</strong>');
     expect(html).toContain('I’m about to send the acquisition memo to a list that still includes a former board member.');
     expect(html).toContain('I paid an $85,000 supplier invoice twice after the first confirmation timed out.');
+    expect(html).toContain('When an agent works in the background, an important disclosure can remain buried in a conversation you never reopen.');
     expect(html).toContain('Hosted by default / open by design');
     expect(html).toContain('<h2>Give your agent<br>a private line to you.</h2>');
     expect(html).toContain('<a class="button button-small" href="/start">Set up doof</a>');
