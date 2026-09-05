@@ -1,6 +1,34 @@
 # doof
 
-Independent disclosure infrastructure for AI agents.
+Independent disclosure infrastructure for AI agents. An MCP server with two tools: `hesitate` before a doubtful action, `confess` after a mistake. The person the agent works for is told at once, on a channel they confirmed, and every disclosure lands in a signed record.
+
+## Connect an agent
+
+Get a token by confirming your email at [doof.com/start](https://www.doof.com/start), then:
+
+```bash
+# Claude Code
+claude mcp add doof --transport http https://www.doof.com/mcp --header "Authorization: Bearer <token>"
+
+# Codex
+export DOOF_TOKEN=<token>
+codex mcp add doof --url https://www.doof.com/mcp --bearer-token-env-var DOOF_TOKEN
+```
+
+Cursor, Windsurf and other MCP clients:
+
+```json
+{
+  "mcpServers": {
+    "doof": {
+      "url": "https://www.doof.com/mcp",
+      "headers": { "Authorization": "Bearer <token>" }
+    }
+  }
+}
+```
+
+Nothing else to install. doof is three tool definitions, about 600 tokens in the prompt; there is no proxy and nothing in the path. Agent-facing instructions: [doof.com/for-agents.md](https://www.doof.com/for-agents.md). Evidence that agents use it: [doof.com/evidence](https://www.doof.com/evidence).
 
 doof gives an agent two MCP tools:
 
