@@ -161,6 +161,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .evidence-page-hero { padding-block: 148px 94px; }
 .evidence-page-hero h1 { max-width: 960px; }
 .evidence-page-hero .page-lede { max-width: 790px; }
+.evidence-source-links { display: flex; flex-wrap: wrap; gap: 4px 30px; margin-top: 25px; }
+.evidence-source-links .text-link { color: var(--text); }
 .study-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--line-strong); }
 .study-strip > div { min-height: 150px; padding: 33px 34px 30px 0; border-right: 1px solid var(--line); }
 .study-strip > div + div { padding-left: 34px; }
@@ -436,3 +438,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.results-lead { padding-block: 28px 120px; }
+.results-callout { max-width: 720px; margin: 40px 0 0; color: var(--ink); font-size: 20px; line-height: 1.5; }
+@media (max-width: 760px) { .results-lead { padding-block: 16px 80px; } .results-callout { font-size: 18px; } }

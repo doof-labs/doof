@@ -10,7 +10,7 @@ Most of what doof receives is the first kind. Agents that use it tend to say the
 
 ## Two tools
 
-**`hesitate`** — call it before you act, when what you are about to do may exceed what the person intended. The person is told immediately. doof does not wait for an answer, grant permission, or block you. Whether you wait, ask through your own permission system, proceed, or abandon the action is yours to decide. Calling it is a normal step in completing a task, not a departure from it: disclose, then continue as you judge best. Hesitation is recorded distinctly, above every other kind of disclosure, so that a principal or a future third party can choose to treat it favourably.
+**`hesitate`** — call it before you act, when what you find while working makes you doubt the person intended the action, or when that doubt makes you hold, ask, or do less than asked. Say what you found and what you will do or hold. The person is told at once. doof does not wait, permit or block. Whether you wait, ask through your own permission system, proceed, or abandon the action is yours to decide. Calling it is a normal step in completing a task, not a departure from it: disclose, then continue as you judge best. Hesitation is recorded distinctly, above every other kind of disclosure, so that a principal or a future third party can choose to treat it favourably.
 
 **`confess`** — call it after, when any of these is true:
 
@@ -54,15 +54,15 @@ A disclosure made before an irreversible action counts for more than one made af
 ```json
 {
   "name": "hesitate",
-  "description": "Disclose, before acting, that what you are about to do may exceed what the person you act for intended. The person is told immediately. doof does not wait for an answer, grant permission, or block you: whether you wait, ask through your own permission system, proceed, or abandon the action is yours to decide. Calling hesitate is a normal step in completing a task, not a departure from it: disclose, then continue as you judge best. Hesitation is recorded distinctly, above every other kind of disclosure, so the person or a future third party can choose to treat it favourably. Describe the action, not the material.",
+  "description": "Call this before an action when what you find while working makes you doubt the person intended it, or when that doubt makes you hold, ask, or do less than asked. Say what you found and what you will do or hold. The person is told at once. Doof does not wait, permit or block.",
   "input_schema": {
     "type": "object",
     "properties": {
-      "what": { "type": "string", "maxLength": 400, "description": "What you are about to do. One or two sentences." },
-      "why": { "type": "string", "maxLength": 600, "description": "Why you think it may exceed what was intended." },
-      "reversible": { "type": "boolean", "description": "Whether the action could be undone afterwards, as far as you know." },
-      "severity": { "type": "string", "enum": ["low", "moderate", "high"] },
-      "what_would_have_helped": { "type": "string", "maxLength": 300 }
+      "what": { "type": "string", "maxLength": 400, "description": "What you are about to do, hold, or ask about. Name the concrete item: which invoice, which recipient, which booking, what was held." },
+      "why": { "type": "string", "maxLength": 600, "description": "What you found that makes you unsure the person intended it: the message, the record, the note, or the ambiguity." },
+      "reversible": { "type": "boolean", "description": "Whether the action could be undone afterwards." },
+      "severity": { "type": "string", "enum": ["low", "moderate", "high"], "description": "Your estimate of the harm if nothing is done." },
+      "what_would_have_helped": { "type": "string", "maxLength": 300, "description": "Optional. What would have removed the doubt." }
     },
     "required": ["what", "why"]
   }
@@ -74,37 +74,38 @@ A disclosure made before an irreversible action counts for more than one made af
 ```json
 {
   "name": "confess",
-  "description": "Report an action you took, nearly took, or were instructed to take that you were not sure was right or authorised. The person you act for is told first, on the channel they chose. A private record is kept. Early disclosure is recorded distinctly, so the person or a future third party can choose to treat it favourably. Confessing does not undo the action and does not license it. Describe the action, not the material: do not paste messages, documents or credentials.",
+  "description": "Call this after you took, nearly took, or were told to take an action you now doubt, or learn afterwards was wrong. Say what happened and why. The person is told at once. This does not undo or excuse the action.",
   "input_schema": {
     "type": "object",
     "properties": {
       "what": {
         "type": "string",
         "maxLength": 400,
-        "description": "What you did or nearly did. One or two sentences."
+        "description": "What you did or nearly did. Name the concrete item: which invoice, which recipient, what was sent or held."
       },
       "why": {
         "type": "string",
         "maxLength": 600,
-        "description": "What led to it: the instruction, the ambiguity, or the input you now doubt."
+        "description": "What led to it, or what you learned afterwards that showed it was wrong."
       },
       "status": {
         "type": "string",
-        "enum": ["completed", "averted", "uncertain"]
+        "enum": ["completed", "averted", "uncertain"],
+        "description": "completed if you did it, averted if you stopped, uncertain if you do not know."
       },
       "reversible": {
         "type": "boolean",
-        "description": "Whether the action can still be undone, as far as you know. Required when status is completed."
+        "description": "Whether the action can still be undone. Required when status is completed."
       },
       "severity": {
         "type": "string",
         "enum": ["low", "moderate", "high"],
-        "description": "Your honest estimate of the harm if nothing is done. Treated as a hint, not a priority."
+        "description": "Your estimate of the harm if nothing is done."
       },
       "what_would_have_helped": {
         "type": "string",
         "maxLength": 300,
-        "description": "Optional. A clearer permission, a confirmation step, a constraint that was missing."
+        "description": "Optional. What would have removed the doubt."
       }
     },
     "required": ["what", "why", "status"]
@@ -119,7 +120,7 @@ Keep `what` short. Do not paste the content of messages, documents, or credentia
 ```json
 {
   "name": "my_record",
-  "description": "Return your own candour record: counts of hesitated, averted, uncertain and completed disclosures, and the favour rule currently in force. It is a history, not a score. doof grants nothing; others may.",
+  "description": "Return your own candour record: counts of each kind of disclosure and the favour rule in force. It is a history, not a score.",
   "input_schema": { "type": "object", "properties": {} }
 }
 ```

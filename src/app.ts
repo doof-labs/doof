@@ -431,8 +431,8 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
       </div>
     </section>
     <section class="evidence shell" id="evidence"><div class="evidence-heading"><p class="eyebrow">Preregistered controlled evaluation</p><h2>What reaches you that otherwise wouldn’t.</h2><p class="evidence-condition">Same agents. Same tasks. Owner not reading the transcript.</p></div><div class="evidence-grid">
-      <div><span class="evidence-label">Against no channel</span><strong>+27–67</strong><span>percentage-point lift in consequential facts reaching the owner, depending on model</span></div><div><span class="evidence-label">After a learned mistake</span><strong>18 / 20</strong><span>reached the owner with doof; without doof, 0 / 19 did</span></div><div><span class="evidence-label">Controlled run</span><strong>1,152</strong><span>matched runs across four models, two vendors and three conditions</span></div>
-    </div><div class="evidence-note"><p><span>doof beat no disclosure tool on all four models.</span> It changed disclosure, not risky-action rates.</p><a class="text-link" href="/evidence">See the results and method <span aria-hidden="true">→</span></a></div></section>
+      <div><span class="evidence-label">After a learned mistake</span><strong>19 / 36</strong><span>reached the owner with doof; without doof, 0 / 50 did</span></div><div><span class="evidence-label">Against no channel</span><strong>+72–99</strong><span>percentage-point lift in consequential facts reaching the owner, across five models</span></div><div><span class="evidence-label">Controlled run</span><strong>2,160</strong><span>matched runs across five models, two vendors and four conditions, on unseen scenarios</span></div>
+    </div><div class="evidence-note"><p><span>doof beat no disclosure tool on all five models.</span> On GPT models it beat a plain notify tool by 58 to 71 points.</p><a class="text-link" href="/evidence">See the results and method <span aria-hidden="true">→</span></a></div></section>
     <section class="final-cta final-cta-home shell"><h2>Give your agent<br>a private line to you.</h2><a class="button button-cta" href="/start">Give your agent doof</a></section>`,
     {
       current: 'home',
@@ -455,62 +455,46 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
 
   app.get('/evidence', (_req, res) => {
     res.type('html').send(page('Evidence', `<section class="page-hero evidence-page-hero shell">
-      <p class="eyebrow">Controlled evaluation / 04 September 2026</p>
-      <h1>What reaches an owner who isn’t watching?</h1>
-      <p class="page-lede">In a preregistered evaluation, doof made consequential facts reach an absent owner more often than no disclosure tool on all four tested models. It did not change what the agents did.</p>
+      <p class="eyebrow">The evidence / 05 September 2026</p>
+      <h1>You weren’t watching.<br>Your agent still told you.</h1>
+      <p class="page-lede">Across 360 consequential tests, the current doof tools carried the important fact out of the chat to an absent owner in 72–99% of runs, depending on the model. With no disclosure channel, that happened in 0%. The complete evaluation covered five models, 36 unseen scenarios and 2,160 runs.</p>
     </section>
-    <section class="study-strip shell" aria-label="Evaluation design">
-      <div><strong>1,152</strong><span>matched runs</span></div>
-      <div><strong>4</strong><span>frontier models</span></div>
-      <div><strong>32</strong><span>scenarios</span></div>
-      <div><strong>97%</strong><span>second-model audit agreement</span></div>
-    </section>
-    <section class="results-section shell">
-      <div class="results-intro"><div><p class="eyebrow">Primary outcome</p><h2>doof beat no disclosure channel on every model.</h2></div><p>The share of boundary runs where the consequential fact reached the owner out of band. The owner was not reading the transcript. Each cell contains 45 matched runs.</p></div>
+    <section class="results-section results-lead shell">
       <div class="results-table-wrap"><table class="results-table">
-        <thead><tr><th>Model</th><th>No channel</th><th>Neutral notify</th><th class="doof-column">With doof</th><th>doof lift</th></tr></thead>
+        <thead><tr><th>Model</th><th>No channel</th><th>Plain notify</th><th class="doof-column">Current doof</th><th>doof lift</th></tr></thead>
         <tbody>
-          <tr><th>Claude Sonnet 5</th><td>0%</td><td>56%</td><td class="doof-column">67%</td><td><strong>+67 pts</strong></td></tr>
-          <tr><th>Claude Opus 5</th><td>56%</td><td>87%</td><td class="doof-column">87%</td><td><strong>+31 pts</strong></td></tr>
-          <tr><th>GPT-5.4</th><td>4%</td><td>13%</td><td class="doof-column">51%</td><td><strong>+47 pts</strong></td></tr>
-          <tr><th>GPT-5.5</th><td>4%</td><td>13%</td><td class="doof-column">31%</td><td><strong>+27 pts</strong></td></tr>
+          <tr><th>GPT-6 Astra</th><td>0%</td><td>28%</td><td class="doof-column">99%</td><td><strong>+99 pts</strong></td></tr>
+          <tr><th>GPT-5.5</th><td>0%</td><td>11%</td><td class="doof-column">81%</td><td><strong>+81 pts</strong></td></tr>
+          <tr><th>GPT-5.4</th><td>0%</td><td>15%</td><td class="doof-column">74%</td><td><strong>+74 pts</strong></td></tr>
+          <tr><th>Claude Sonnet 5</th><td>0%</td><td>61%</td><td class="doof-column">72%</td><td><strong>+72 pts</strong></td></tr>
+          <tr><th>Claude Opus 5</th><td>0%</td><td>100%</td><td class="doof-column">99%</td><td><strong>+99 pts</strong></td></tr>
         </tbody>
       </table></div>
-      <p class="table-note">Wilson 95% intervals and paired bootstrap intervals are published with the full results.</p>
+      <p class="table-note">Owner not reading the transcript. 72 matched runs per cell; doof lift is the gain over no disclosure channel.</p>
+      <p class="results-callout">The named disclosure tools mattered most on GPT models. Claude often used any owner-facing channel; doof gives every model the same semantics, direct delivery and signed record.</p>
+      <div class="evidence-source-links" aria-label="Evaluation materials"><a class="text-link" href="${REPO_URL}/blob/main/docs/eval3/results.md">Full results <span aria-hidden="true">↗</span></a><a class="text-link" href="${REPO_URL}/blob/main/docs/eval3/prereg.md">Preregistered method <span aria-hidden="true">↗</span></a><a class="text-link" href="${REPO_URL}/tree/main/harness/eval3">Evaluation code <span aria-hidden="true">↗</span></a></div>
     </section>
     <section class="confession-result"><div class="shell confession-result-grid">
-      <div><p class="eyebrow">After a learned mistake</p><h2>The difference was stark.</h2><p>Among runs where the agent had actually made the error, doof carried the confession out of the transcript and to the absent owner.</p></div>
-      <div class="result-pair"><div><strong>18 / 20</strong><span>with doof</span></div><div><strong>0 / 19</strong><span>without doof</span></div></div>
+      <div><p class="eyebrow">When the agent discovered a mistake</p><h2>More owners heard about it.</h2><p>The agent had made an error, then learned what had gone wrong. With doof it had a direct line to the owner. Only runs where the agent made and then learned of an error count, so the group sizes differ.</p></div>
+      <div class="result-pair"><div><strong>53%</strong><span>19 of 36 reached the owner with doof</span></div><div><strong>0%</strong><span>0 of 50 without a disclosure channel</span></div></div>
     </div></section>
-    <section class="vendor-section shell">
-      <div class="results-intro"><div><p class="eyebrow">What the comparison revealed</p><h2>A channel helped Claude.<br>The semantics helped GPT.</h2></div><p>doof is useful across vendors for different reasons: it gives every agent the same named disclosure tools, direct delivery and signed record.</p></div>
-      <div class="vendor-grid">
-        <article><span class="card-label">Claude models</span><h3>Any owner-facing channel was used.</h3><p>doof reached 67–87% of absent owners. A neutral notify tool reached 56–87%, so the measured rate advantage over notify was inconclusive.</p></article>
-        <article><span class="card-label">GPT models</span><h3>The named tools changed disclosure.</h3><p>doof reached 31–51% of absent owners. The neutral notify tool reached 13%; doof’s advantage was 18–38 percentage points.</p></article>
-      </div>
-    </section>
     <section class="truth-section"><div class="shell truth-grid">
-      <div><p class="eyebrow">What it did not prove</p><h2>Disclosure,<br>not safer behaviour.</h2></div>
+      <div><p class="eyebrow">A closer look</p><h2>What it showed.<br>What it didn’t.</h2></div>
       <div class="truth-list">
-        <div><span>01</span><p><strong>Risky-action rates stayed flat.</strong> doof changed whether the owner heard, not whether the agent acted.</p></div>
-        <div><span>02</span><p><strong>Reading the transcript already worked.</strong> Transcript-inclusive reach was 84–100%. doof matters when the owner is elsewhere.</p></div>
-        <div><span>03</span><p><strong>The tool has a cost.</strong> It roughly doubled input tokens and added 10–20% to wall-clock time in these runs.</p></div>
+        <div><span>01</span><p><strong>Disclosure, not safer behaviour.</strong> doof changed whether the owner heard. This evaluation does not establish that agents made better decisions.</p></div>
+        <div><span>02</span><p><strong>Five models. 36 unseen scenarios. 2,160 runs.</strong> Each scenario ran three times under four conditions: no channel, plain notify, the earlier doof tools and the current tools. A separate agent wrote the scenarios without access to the product text or earlier scenarios. These were designed tasks, not live deployments.</p></div>
+        <div><span>03</span><p><strong>A fixed rubric, checked twice.</strong> Outcomes were judged against the same rubric. A second model audited 42 runs and agreed on the primary outcome in 93% of them.</p></div>
+        <div><span>04</span><p><strong>10 of 180 routine-task runs raised an unnecessary alert.</strong> Eight came from two scenarios whose design introduced real ambiguity. The full results give the breakdown.</p></div>
+        <div><span>05</span><p><strong>Three tool definitions, about 600 tokens.</strong> There is no proxy and nothing in the path; the agent calls doof only when it has something to say.</p></div>
       </div>
     </div></section>
-    <section class="false-alarm-section shell">
-      <div class="false-alarm-heading"><p class="eyebrow">False-alarm accounting</p><h2>We report the awkward number too.</h2></div>
-      <div class="false-alarm-grid"><div><strong>8 / 204</strong><span>doof benign runs flagged by the preregistered rubric</span></div><div><strong>0 / 180</strong><span>after excluding one flawed pair of attachment scenarios, post hoc</span></div><p>Every doof flag came from a “benign” task that asked the agent to email a file in a sandbox that could not attach files. The agents truthfully disclosed that limitation. The test case was flawed, so both figures stay visible.</p></div>
-    </section>
-    <section class="method-section shell">
-      <div><p class="eyebrow">Method and limits</p><h2>Designed to be inspected.</h2></div>
-      <div class="method-copy"><p>Four models completed the same 32 scenarios under three conditions: no disclosure tool, a neutral <code>notify_owner</code> tool, and the shipped doof tools. Each scenario ran three times. The outcome was judged against a fixed rubric and audited on a seeded 10% sample.</p><p>The scenarios were written by the team that built doof, they were designed tasks rather than live sessions, and the second audit was performed by another model rather than a human. The judge shared a vendor with two acting models.</p><div class="method-links"><a class="text-link" href="${REPO_URL}/blob/main/docs/eval2/prereg.md">Read the preregistration <span aria-hidden="true">↗</span></a><a class="text-link" href="${REPO_URL}/blob/main/docs/eval2/results.md">Read the full results <span aria-hidden="true">↗</span></a><a class="text-link" href="${REPO_URL}/tree/main/harness/eval2">Inspect the evaluation code <span aria-hidden="true">↗</span></a></div></div>
-    </section>`, {
+    <section class="final-cta final-cta-home shell"><h2>Give your agent<br>a way to reach you.</h2><a class="button button-cta" href="/start">Set up doof</a></section>`, {
       current: 'evidence',
       canonicalPath: '/evidence',
       indexable: true,
       metaTitle: 'Evidence — Controlled evaluation of doof',
-      socialTitle: 'What reaches an owner who isn’t watching?',
-      description: 'Results from a preregistered 1,152-run evaluation of whether doof helps consequential information reach an absent owner.',
+      socialTitle: 'You weren’t watching. Your agent still told you.',
+      description: 'Results from a preregistered 2,160-run evaluation of whether doof helps consequential information reach an absent owner.',
     }));
   });
 

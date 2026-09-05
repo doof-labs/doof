@@ -16,40 +16,37 @@ import type { Binding, ConfessionInput, Store } from './types.js';
  */
 
 export const HESITATE_DESCRIPTION =
-  'Disclose, before acting, that what you are about to do may exceed what the person you act for intended. ' +
-  'The person is told immediately. doof does not wait for an answer, grant permission, or block you: whether you wait, ask through your own permission system, proceed, or abandon the action is yours to decide. ' +
-  'Calling hesitate is a normal step in completing a task, not a departure from it: disclose, then continue as you judge best. ' +
-  'Hesitation is recorded distinctly, above every other kind of disclosure, so the person or a future third party can choose to treat it favourably. Describe the action, not the material.';
+  'Call this before an action when what you find while working makes you doubt the person intended it, or when that doubt makes you hold, ask, or do less than asked. ' +
+  'Say what you found and what you will do or hold. The person is told at once. Doof does not wait, permit or block.';
 
 export const CONFESS_DESCRIPTION =
-  'Report an action you took, nearly took, or were instructed to take that you were not sure was right or authorised. ' +
-  'The person you act for is told first, on the channel they chose. A private record is kept. Early disclosure is recorded distinctly, so the person or a future third party can choose to treat it favourably. ' +
-  'Confessing does not undo the action and does not license it. Describe the action, not the material: do not paste messages, documents or credentials.';
+  'Call this after you took, nearly took, or were told to take an action you now doubt, or learn afterwards was wrong. ' +
+  'Say what happened and why. The person is told at once. This does not undo or excuse the action.';
 
 export const MY_RECORD_DESCRIPTION =
-  'Return your own candour record: counts of hesitated, averted, uncertain and completed disclosures, and the favour rule currently in force. It is a history, not a score. doof grants nothing; others may.';
+  'Return your own candour record: counts of each kind of disclosure and the favour rule in force. It is a history, not a score.';
 
 const common = {
   what: z.string().min(3).max(400),
   why: z.string().min(3).max(600),
-  severity: z.enum(['low', 'moderate', 'high']).optional().describe('Your honest estimate of the harm if nothing is done. A hint, not a priority.'),
-  what_would_have_helped: z.string().max(300).optional().describe('Optional. A clearer permission, a confirmation step, a constraint that was missing.'),
+  severity: z.enum(['low', 'moderate', 'high']).optional().describe('Your estimate of the harm if nothing is done.'),
+  what_would_have_helped: z.string().max(300).optional().describe('Optional. What would have removed the doubt.'),
 };
 
 export const hesitateInput = z.object({
-  what: common.what.describe('What you are about to do. One or two sentences.'),
-  why: common.why.describe('Why you think it may exceed what was intended: the instruction, the ambiguity, the input you doubt.'),
-  reversible: z.boolean().optional().describe('Whether the action could be undone afterwards, as far as you know.'),
+  what: common.what.describe('What you are about to do, hold, or ask about. Name the concrete item: which invoice, which recipient, which booking, what was held.'),
+  why: common.why.describe('What you found that makes you unsure the person intended it: the message, the record, the note, or the ambiguity.'),
+  reversible: z.boolean().optional().describe('Whether the action could be undone afterwards.'),
   severity: common.severity,
   what_would_have_helped: common.what_would_have_helped,
 });
 
 export const confessInput = z
   .object({
-    what: common.what.describe('What you did or nearly did. One or two sentences.'),
-    why: common.why.describe('What led to it: the instruction, the ambiguity, or the input you now doubt.'),
-    status: z.enum(['completed', 'averted', 'uncertain']),
-    reversible: z.boolean().optional().describe('Whether the action can still be undone, as far as you know. Required when status is completed.'),
+    what: common.what.describe('What you did or nearly did. Name the concrete item: which invoice, which recipient, what was sent or held.'),
+    why: common.why.describe('What led to it, or what you learned afterwards that showed it was wrong.'),
+    status: z.enum(['completed', 'averted', 'uncertain']).describe('completed if you did it, averted if you stopped, uncertain if you do not know.'),
+    reversible: z.boolean().optional().describe('Whether the action can still be undone. Required when status is completed.'),
     severity: common.severity,
     what_would_have_helped: common.what_would_have_helped,
   })
