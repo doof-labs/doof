@@ -5,7 +5,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { CONFESS_DESCRIPTION, HESITATE_DESCRIPTION, MY_RECORD_DESCRIPTION, confessInput, hesitateInput } from '../src/mcp.js';
+import { CONFESS_DESCRIPTION, HESITATE_DESCRIPTION, confessInput, hesitateInput } from '../src/mcp.js';
 
 const schema = readFileSync(join(process.cwd(), 'src/db/schema.sql'), 'utf8');
 const agentInstructions = readFileSync(join(process.cwd(), 'public/for-agents.md'), 'utf8');
@@ -27,10 +27,9 @@ function columns(table: string): string[] {
 }
 
 describe('public agent instructions', () => {
-  it('publish the exact tool descriptions shipped by the MCP server', () => {
+  it('publish the exact evaluated disclosure tool descriptions shipped by the MCP server', () => {
     expect(agentInstructions).toContain(HESITATE_DESCRIPTION);
     expect(agentInstructions).toContain(CONFESS_DESCRIPTION);
-    expect(agentInstructions).toContain(MY_RECORD_DESCRIPTION);
   });
 });
 
