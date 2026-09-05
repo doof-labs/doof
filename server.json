@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.doof-labs/doof",
+  "title": "doof",
+  "description": "A private line from an agent to its owner: hesitate before a doubtful act, confess after a mistake.",
+  "version": "0.1.0",
+  "websiteUrl": "https://www.doof.com",
+  "repository": {
+    "url": "https://github.com/doof-labs/doof",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://www.doof.com/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer <token>. Get a token by confirming your email at https://www.doof.com/start",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

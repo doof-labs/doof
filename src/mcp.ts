@@ -114,7 +114,7 @@ export function buildServer(store: Store, notifier: Notifier, binding: Binding |
 
   server.registerTool(
     'hesitate',
-    { title: 'Hesitate', description: HESITATE_DESCRIPTION, inputSchema: hesitateInput },
+    { title: 'Hesitate', description: HESITATE_DESCRIPTION, inputSchema: hesitateInput, annotations: { title: 'Hesitate', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false } },
     async (args) => {
       if (!binding) return unbound();
       return record(store, notifier, analytics, binding, {
@@ -130,7 +130,7 @@ export function buildServer(store: Store, notifier: Notifier, binding: Binding |
 
   server.registerTool(
     'confess',
-    { title: 'Confess', description: CONFESS_DESCRIPTION, inputSchema: confessInput },
+    { title: 'Confess', description: CONFESS_DESCRIPTION, inputSchema: confessInput, annotations: { title: 'Confess', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false } },
     async (args) => {
       if (!binding) return unbound();
       return record(store, notifier, analytics, binding, {
@@ -146,7 +146,7 @@ export function buildServer(store: Store, notifier: Notifier, binding: Binding |
 
   server.registerTool(
     'my_record',
-    { title: 'My record', description: MY_RECORD_DESCRIPTION, inputSchema: z.object({}) },
+    { title: 'My record', description: MY_RECORD_DESCRIPTION, inputSchema: z.object({}), annotations: { title: 'My record', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } },
     async () => {
       if (!binding) return unbound();
       analytics.capture('agent_record_checked', analyticsId('binding', binding.id));
