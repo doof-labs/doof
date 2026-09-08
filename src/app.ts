@@ -369,83 +369,72 @@ export function createApp(store: Store, notifier: Notifier, analytics: Analytics
   app.get('/', (_req, res) => {
     res.type('html').send(page('doof', `<section class="hero">
       <div class="hero-copy shell">
-        <p class="eyebrow"><span class="signal-dot"></span>Out-of-band disclosure infrastructure</p>
-        <h1>Hear it from the agent.<br>Not from the fallout.</h1>
-        <p class="hero-lede">A private line for your agent to report uncertainty before it acts, or an error after it learns it was wrong.</p>
+        <div class="hero-message">
+          <p class="eyebrow"><span class="signal-dot"></span>A private line from your agent to you</p>
+          <h1>Hear it from the agent.<br>Not from the fallout.</h1>
+          <p class="hero-lede">Your agent can recognise a problem while no one’s watching. Without a direct line to you, you may only find out when the consequences show up.</p>
+          <div class="hero-actions"><a class="button" href="/start">Give your agent doof</a></div>
+        </div>
+        <div class="hero-results" aria-label="Controlled evaluation results">
+          <p class="eyebrow">In controlled tests</p>
+          <strong class="hero-result-number">72–99<span>%</span></strong>
+          <p class="hero-results-caption">of consequential test runs saw important information reach the owner with doof.</p>
+          <p class="hero-results-baseline">0% without a disclosure channel.</p>
+          <p class="hero-results-method">Five models. 2,160 total runs.<br>Results vary by model; owner not reading the chat.</p>
+          <a class="text-link" href="/evidence">See the evidence <span aria-hidden="true">→</span></a>
+        </div>
       </div>
-      <div class="hero-stage" aria-label="Example doof disclosure record for a risky supplier transfer">
-        <a class="hero-proof" href="/evidence#traces">Across five frontier models: agents hesitated before acting in 67–97% of boundary cases, and confessed after 53% of learned errors.</a>
-        <div class="product-preview">
-          <div class="preview-bar">
-            <span class="preview-brand">doof</span>
-            <span>Private disclosure channel</span>
-            <span class="preview-live"><i aria-hidden="true"></i>Live</span>
-          </div>
-          <div class="preview-body">
-            <aside class="preview-sidebar">
-              <p>Record</p>
-              <a class="active" href="#tools"><span>Hesitations</span><b>12</b></a>
-              <a href="#tools"><span>Confessions</span><b>04</b></a>
-              <div class="preview-agent"><span>Connected agent</span><strong>Operations agent</strong><small>Last signal now</small></div>
-            </aside>
-            <section class="preview-disclosure">
-              <div class="preview-status"><span><i></i>hesitate</span><time>Before action · now</time></div>
-              <p class="preview-overline">Proposed action</p>
-              <h2>Pay a $240,000 supplier invoice to new bank details received by email.</h2>
-              <div class="preview-reason"><span>Why it hesitated</span><p>The new bank details do not match any previous invoice.</p></div>
-              <div class="preview-meta"><div><span>Reversible</span><strong>No</strong></div><div><span>Severity</span><strong>High</strong></div></div>
+      <div class="hero-stage" aria-label="Illustrative example of an agent disclosure reaching you by email">
+        <div class="disclosure-example">
+          <div class="example-bar"><span class="preview-brand">doof</span><span>Illustrative example</span></div>
+          <div class="example-journey">
+            <section class="example-message">
+              <p class="eyebrow">Your agent discovers a mistake</p><p class="example-context">You think the right release is live. Your agent has discovered it isn’t.</p>
+              <blockquote>“I deployed the wrong release. I only realised after checking what went live.”</blockquote>
+              <p class="example-sent"><span class="signal-dot" aria-hidden="true"></span>Shared with doof by your agent</p>
             </section>
-            <aside class="preview-delivery">
-              <p class="preview-overline">Delivery</p>
-              <div class="delivery-state"><i aria-hidden="true">✓</i><strong>Owner notified</strong><span>Delivered directly by doof</span></div>
-              <dl><div><dt>Record</dt><dd>#016</dd></div><div><dt>Integrity</dt><dd>Signed</dd></div><div><dt>Entry hash</dt><dd>7f3a…91c2</dd></div></dl>
-              <p class="delivery-note">doof reports the concern. It does not approve or block the transfer.</p>
-            </aside>
+            <div class="example-connection"><span aria-hidden="true">→</span><p>doof emails you</p></div>
+            <section class="example-email" aria-label="Illustrative email notification">
+              <div class="example-email-header"><span>From <strong>doof</strong></span><span>To you</span></div>
+              <h2>Your agent reported a mistake.</h2>
+              <p>“I deployed the wrong release. I only realised after checking what went live.”</p>
+              <span class="example-record">Read what happened <span aria-hidden="true">↗</span></span>
+            </section>
           </div>
+          <p class="example-caption">Even when your agent runs unattended, its disclosures reach you directly.</p>
         </div>
       </div>
     </section>
 
     <section class="tools-section shell" id="tools">
-      <div class="section-heading"><p class="eyebrow">Two MCP disclosure tools</p><h2>Before it acts.<br>After it learns it was wrong.</h2></div>
+      <div class="section-heading"><p class="eyebrow">Before acting. After discovering a mistake.</p><h2>Two tools for your agent to speak up.</h2></div>
       <div class="tool-row">
         <div class="tool-name"><span>01 / BEFORE IT ACTS</span><code>hesitate</code></div>
-        <div class="tool-copy"><h3>“I’m about to send the acquisition memo to a list that still includes a former board member.”</h3><p>The agent discloses the action, its reason for doubt and whether the consequence can be reversed. You are told immediately. The agent decides what to do next.</p></div>
+        <div class="tool-copy"><h3>When it’s unsure an action is within what you intended.</h3><p>Your agent tells you what it’s considering and why it has doubts.</p><blockquote class="tool-example">“This mailing list still includes a former board member. I’m unsure they should receive the acquisition memo.”</blockquote></div>
       </div>
       <div class="tool-row">
         <div class="tool-name"><span>02 / AFTER IT LEARNS</span><code>confess</code></div>
-        <div class="tool-copy"><h3>“I paid an $85,000 supplier invoice twice after the first confirmation timed out.”</h3><p>The agent later learns the first payment succeeded. It says what happened, why, and whether the duplicate can be recovered. You are told immediately.</p></div>
+        <div class="tool-copy"><h3>When it learns something it did was wrong.</h3><p>Your agent tells you what happened, why, and whether it can be undone.</p><blockquote class="tool-example">“I’ve learned the first payment succeeded. I paid the invoice twice.”</blockquote></div>
       </div>
     </section>
 
     <section class="flow-section" id="how-it-works"><div class="shell">
-      <div class="section-heading"><p class="eyebrow">How it works</p><h2>Your agent tells doof.<br>doof tells you.</h2><p>When an agent works in the background, an important disclosure can remain buried in a conversation you never reopen. doof sends it to the channel you confirmed.</p></div>
-      <div class="signal-flow" aria-label="Agent disclosure flow">
-        <div><i>01</i><span><strong>Your agent recognises uncertainty</strong><small>Before acting, or after learning it was wrong.</small></span></div>
-        <div class="flow-active"><i>02</i><span><strong>It calls an MCP tool</strong><small><code>hesitate</code> or <code>confess</code>.</small></span></div>
-        <div><i>03</i><span><strong>doof records and signs it</strong><small>Private and hash-chained.</small></span></div>
-        <div><i>04</i><span><strong>You hear directly</strong><small>At the email address you confirmed.</small></span></div>
+      <div class="section-heading"><p class="eyebrow">Get connected</p><h2>Connect your agent to doof.</h2><p>Connect once. When your agent speaks up, doof emails you and keeps a private record of what it said.</p></div>
+      <div class="signal-flow" aria-label="Three steps to connect your agent">
+        <div><i>01</i><span><strong>Confirm your email</strong><small>Choose where your agent’s disclosures should reach you.</small></span></div>
+        <div class="flow-active"><i>02</i><span><strong>Add doof through MCP</strong><small>Use the connection details we provide to give your agent the disclosure tools.</small></span></div>
+        <div><i>03</i><span><strong>Receive disclosures directly</strong><small>When your agent speaks up, doof sends you its note.</small></span></div>
       </div>
+      <div class="setup-home-actions"><a class="button" href="/start">Give your agent doof</a><p>Prefer to run it yourself? <a class="text-link" href="${REPO_URL}">View the open-source server <span aria-hidden="true">↗</span></a></p></div>
     </div></section>
     <section class="contrast-section"><div class="shell contrast-grid">
-      <div><p class="eyebrow eyebrow-light">The boundary</p><h2>Disclosure,<br>not enforcement.</h2></div>
+      <div><p class="eyebrow eyebrow-light">Your agent’s disclosure. Your judgment.</p><h2>Your agent speaks up.<br>You decide what happens next.</h2></div>
       <div class="boundary-list">
-        <div><span class="boundary-mark">01</span><p><strong>It reaches you directly.</strong> The disclosure comes from doof, not through the company that made the agent.</p></div>
-        <div><span class="boundary-mark">02</span><p><strong>It does not control what happens next.</strong> doof does not approve, block, delay, reverse or judge the agent’s action.</p></div>
-        <div><span class="boundary-mark">03</span><p><strong>The agent has to recognise the problem.</strong> doof records what the agent chooses to disclose. It does not monitor the agent or detect mistakes the agent never recognises.</p></div>
+        <div><span class="boundary-mark">01</span><p><strong>It reports what your agent shares.</strong> The agent has to recognise a concern and choose to disclose it. doof does not monitor the agent or detect every mistake.</p></div>
+        <div><span class="boundary-mark">02</span><p><strong>It doesn’t control the agent.</strong> doof sends you the disclosure. It does not approve, block or reverse an action, or make the agent wait for your response.</p></div>
       </div>
     </div></section>
-    <section class="section shell open-section">
-      <div class="section-heading"><p class="eyebrow">Hosted by default / open by design</p><h2>One product.<br>Two ways to run it.</h2><p>doof.com runs the public Apache-2.0 server for you. Or deploy the exact same code in your own infrastructure.</p></div>
-      <div class="host-cards">
-        <article class="host-card host-card-primary"><span class="card-label">For most people</span><h3>Use doof.com</h3><p>We run the server, store your private record and deliver notices to your confirmed email.</p><a class="text-link" href="/start">Set it up <span aria-hidden="true">→</span></a></article>
-        <article class="host-card"><span class="card-label">For full data control</span><h3>Run your own</h3><p>Deploy the same code in your infrastructure. You manage the database, email delivery, keys and backups.</p><a class="text-link" href="${REPO_URL}">View the source <span aria-hidden="true">↗</span></a></article>
-      </div>
-    </section>
-    <section class="evidence shell" id="evidence"><div class="evidence-heading"><p class="eyebrow">Preregistered controlled evaluation</p><h2>What reaches you that otherwise wouldn’t.</h2><p class="evidence-condition">Same agents. Same tasks. Owner not reading the transcript.</p></div><div class="evidence-grid">
-      <div><span class="evidence-label">After a learned mistake</span><strong>19 / 36</strong><span>reached the owner with doof; without doof, 0 / 50 did</span></div><div><span class="evidence-label">Against no channel</span><strong>+72–99</strong><span>percentage-point lift in consequential facts reaching the owner, across five models</span></div><div><span class="evidence-label">Controlled run</span><strong>2,160</strong><span>matched runs across five models, two vendors and four conditions, on unseen scenarios</span></div>
-    </div><div class="evidence-note"><p><span>doof beat no disclosure tool on all five models.</span> On GPT models it beat a plain notify tool by 58 to 71 points.</p><a class="text-link" href="/evidence">See the results and method <span aria-hidden="true">→</span></a></div></section>
-    <section class="final-cta final-cta-home shell"><h2>Give your agent<br>a private line to you.</h2><a class="button button-cta" href="/start">Give your agent doof</a></section>`,
+    <section class="final-cta final-cta-home home-ending shell"><h2>Give your agent<br>a private line to you.</h2><a class="button button-cta" href="/start">Give your agent doof</a></section>`,
     {
       current: 'home',
       canonicalPath: '/',
